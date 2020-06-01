@@ -18,14 +18,20 @@ module.exports = {
         });
     },
     parseAuthorization: function(authorization){
-        return ( authorization != null ) ? authorization.replace('Bearer ',''):null;
+        var result = ( authorization != null ) ? authorization.replace('Bearer ',''):null;
+        console.log("resultat : "+result);
+        return  result
     },
     getUserId: function(authorization){
         var userId = -1;
         var token=module.exports.parseAuthorization(authorization);
+        console.log(token);
         if(token!=null){
+            console.log("je passe ici");
             try{
+                console.log("je passe dans le try");
                 var jwtToken=jwt.verify(token,JWT_SIGN_SECRET);
+                console.log(jwtToken);
                 if(jwtToken!=null) userId=jwtToken.userId;
             } catch(err) {}
         }

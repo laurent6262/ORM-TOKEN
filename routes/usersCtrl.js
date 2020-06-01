@@ -198,7 +198,8 @@ module.exports =
         
         var headerAuth = req.headers['authorization'];
         var userId = jwtUtils.getUserId(headerAuth);
-
+        console.log(userId);
+        
         if(userId <0){
             return res.status(400).json({'erreur': 'token invalide'});
         }
@@ -219,5 +220,66 @@ module.exports =
             {
                 return res.status(500).json({'error': "impossible de récupérer l'utilisateur"});
             })
+    },
+    updateUserProfile: function(req,res){
+        //getting auth header
+        
+        var headerAuth = req.headers['Authorization'];
+        var userId = jwtUtils.getUserId(headerAuth);
+        
+
+        // les paramètres
+        
+        var bio=req.body.bio;
+
+        asyncLib.waterfall
+        ([
+            function(done)
+            {
+                
+                models.User.findOne(
+                {
+                    attributes: ['id','bio'],
+                    where: {id: userId}
+                })
+
+                .then(function(userFound)
+                {
+                    done (null,userFound);
+                })
+
+                .catch(function(err)
+                {
+                    return res.status(500).json({'error': "impossible de vérifier l'utilisateur"});
+                })
+            },
+
+            function(userFound,done)
+            {
+                if (userFound)
+                {
+                   
+                   userFound.update({
+                       bio: (bio ? bio : userFound.bio)
+                    }).then(function(){
+                        done(userFound);
+                    }).catch(function(err) {
+                        return res.status(500).json({'error': "mise à jour utilisateur impossible"});
+                    });
+                } else
+                {
+                    return res.status(404).json({'error': "l'utilisateur n' existe pas dans la base de données"});
+                }       
+            }], function(userFound) {
+                if(userFound){
+                    res.status(201).json(userFound);
+                } else {
+                    return res.status(500).json({'error': "mise à jour profile utilisateur impossible"});
+                }
+
+            })
+
     }
+
+
 }

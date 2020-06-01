@@ -1,23 +1,26 @@
-// imports
+// Imports
+var express      = require('express');
+var usersCtrl    = require('./routes/usersCtrl');
+var messagesCtrl = require('./routes/messagesCtrl');
+var likesCtrl    = require('./routes/likesCtrl');
 
-var express = require("express");
-var usersCtrl = require('./routes/usersCtrl');
+// Router
+exports.router = (function() {
+  var apiRouter = express.Router();
 
-// routeur
+  // Users routes
+  apiRouter.route('/users/register/').post(usersCtrl.register);
+  apiRouter.route('/users/login/').post(usersCtrl.login);
+  apiRouter.route('/users/me/').get(usersCtrl.getUserProfile);
+  apiRouter.route('/users/me/').put(usersCtrl.updateUserProfile);
 
-exports.router = ( function() {
+  // Messages routes
+  apiRouter.route('/messages/new/').post(messagesCtrl.createMessage);
+  apiRouter.route('/messages/').get(messagesCtrl.listMessages);
 
-    var apiRouter = express.Router();
-    
-    //console.log("je passe Router");
-    //console.log(typeof(apiRouter));
+  // Likes
+  apiRouter.route('/messages/:messageId/vote/like').post(likesCtrl.likePost);
+  apiRouter.route('/messages/:messageId/vote/dislike').post(likesCtrl.dislikePost);
 
-    // users routes
-
-    apiRouter.route('/users/register/').post(usersCtrl.register);
-    apiRouter.route('/users/login/').post(usersCtrl.login);
-    apiRouter.route('/users/me/').get(usersCtrl.getUserProfile);
-
-    return apiRouter;
-
+  return apiRouter;
 })();
